@@ -1,0 +1,61 @@
+<!--AI generated--> 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Soju WebSocket IRC Test</title>
+</head>
+<body>
+<h1>Soju IRC WebSocket Test</h1>
+<div>Status: <span id="status">Connecting...</span></div>
+<pre id="log" style="height: 300px; overflow-y: auto; border: 1px solid #ccc;"></pre>
+<input id="input" placeholder="Type IRC command, e.g. NICK mynick" style="width:80%">
+<button id="send">Send</button>
+
+<script>
+  const statusEl = document.getElementById('status');
+  const logEl = document.getElementById('log');
+  const input = document.getElementById('input');
+  const sendBtn = document.getElementById('send');
+
+  function log(text) {
+    logEl.textContent += text + "\n";
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  const ws = new WebSocket('ws://192.168.1.24:1234', [], {
+    // Optional configuration:
+     maxRetries: 10,
+     reconnectInterval: 3000
+  });
+
+  ws.onopen = function() {
+    statusEl.textContent = 'Connected';
+    log('Connected to Soju');
+  };
+
+  ws.onmessage = function(e) {
+    log('<< ' + e.data.trim());
+  };
+
+  ws.onclose = function() {
+    statusEl.textContent = 'Disconnected';
+    log('Connection closed');
+  };
+
+  function sendMessage(message) {
+    ws.send(message);
+  };
+
+  sendBtn.onclick = () => {
+    const cmd = input.value;
+    if (!cmd) return;
+    ws.send( cmd );
+    log('>> ' + cmd);
+    input.value = '';
+  };
+</script>
+</body>
+</html>
+
